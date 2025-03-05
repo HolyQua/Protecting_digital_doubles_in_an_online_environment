@@ -1,4 +1,4 @@
-# -- coding: windows-1251 --
+# -- coding: utf-8 --
 import streamlit as st
 import pickle
 import string
@@ -11,28 +11,28 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
 
-# Загрузка необходимых ресурсов
+# Loading necessary resources
 nltk.download('punkt', quiet=True)
 nltk.download('stopwords', quiet=True)
 
-# Инициализация
+# Initialization
 ps = PorterStemmer()
 tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
 model = pickle.load(open('model.pkl', 'rb'))
 sentiment_analyzer = SentimentIntensityAnalyzer()
 
-# Функция для предобработки текст
+# Function for text preprocessing
 def preprocess_text(text):
     text = text.lower()
     words = nltk.word_tokenize(text)
     words = [ps.stem(word) for word in words if word.isalnum() and word not in stopwords.words('english') and word not in string.punctuation]
     return " ".join(words)
 
-# Функция для анализа настроений
+# Sentiment analysis function
 def analyze_sentiment(text):
     return sentiment_analyzer.polarity_scores(text)
 
-# Основной интерфейс Streamlit
+# Main Streamlit interface
 st.title("Защита цифровых двойников")
 
 input_sms = st.text_area("Введите текст, который подозревается на мошеничество или буллинг")
