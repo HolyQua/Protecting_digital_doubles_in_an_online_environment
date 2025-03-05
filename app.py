@@ -11,109 +11,109 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
 
-# Загрузка необходимых ресурсов
+# Р—Р°РіСЂСѓР·РєР° РЅРµРѕР±С…РѕРґРёРјС‹С… СЂРµСЃСѓСЂСЃРѕРІ
 nltk.download('punkt', quiet=True)
 nltk.download('stopwords', quiet=True)
 
-# Инициализация
+# РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ
 ps = PorterStemmer()
 tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
 model = pickle.load(open('model.pkl', 'rb'))
 sentiment_analyzer = SentimentIntensityAnalyzer()
 
-# Функция для предобработки текст
+# Р¤СѓРЅРєС†РёСЏ РґР»СЏ РїСЂРµРґРѕР±СЂР°Р±РѕС‚РєРё С‚РµРєСЃС‚
 def preprocess_text(text):
     text = text.lower()
     words = nltk.word_tokenize(text)
     words = [ps.stem(word) for word in words if word.isalnum() and word not in stopwords.words('english') and word not in string.punctuation]
     return " ".join(words)
 
-# Функция для анализа настроений
+# Р¤СѓРЅРєС†РёСЏ РґР»СЏ Р°РЅР°Р»РёР·Р° РЅР°СЃС‚СЂРѕРµРЅРёР№
 def analyze_sentiment(text):
     return sentiment_analyzer.polarity_scores(text)
 
-# Основной интерфейс Streamlit
-st.title("Защита цифровых двойников")
+# РћСЃРЅРѕРІРЅРѕР№ РёРЅС‚РµСЂС„РµР№СЃ Streamlit
+st.title("Р—Р°С‰РёС‚Р° С†РёС„СЂРѕРІС‹С… РґРІРѕР№РЅРёРєРѕРІ")
 
-input_sms = st.text_area("Введите текст, который подозревается на мошеничество или буллинг")
+input_sms = st.text_area("Р’РІРµРґРёС‚Рµ С‚РµРєСЃС‚, РєРѕС‚РѕСЂС‹Р№ РїРѕРґРѕР·СЂРµРІР°РµС‚СЃСЏ РЅР° РјРѕС€РµРЅРёС‡РµСЃС‚РІРѕ РёР»Рё Р±СѓР»Р»РёРЅРі")
 input_sms = GoogleTranslator(source='ru', target='en').translate(input_sms)
-if st.button('Анализировать'):
-    # Предобработка
+if st.button('РђРЅР°Р»РёР·РёСЂРѕРІР°С‚СЊ'):
+    # РџСЂРµРґРѕР±СЂР°Р±РѕС‚РєР°
     transformed_sms = preprocess_text(input_sms)
 
-    # Векторизация и предсказание
+    # Р’РµРєС‚РѕСЂРёР·Р°С†РёСЏ Рё РїСЂРµРґСЃРєР°Р·Р°РЅРёРµ
     vector_input = tfidf.transform([transformed_sms])
     result = model.predict(vector_input)[0]
     
     progress = st.progress(0)
     for i in range(100):
-        time.sleep(0.01)  # Имитируем выполнение задачи
+        time.sleep(0.01)  # РРјРёС‚РёСЂСѓРµРј РІС‹РїРѕР»РЅРµРЅРёРµ Р·Р°РґР°С‡Рё
         progress.progress(i + 1)
         
-    # Вывод результата предсказания
+    # Р’С‹РІРѕРґ СЂРµР·СѓР»СЊС‚Р°С‚Р° РїСЂРµРґСЃРєР°Р·Р°РЅРёСЏ
     if result == 0:
-        st.header("Результат: Мошеничество")
-        st.markdown("*Высокая вероятность фишинга*")
+        st.header("Р РµР·СѓР»СЊС‚Р°С‚: РњРѕС€РµРЅРёС‡РµСЃС‚РІРѕ")
+        st.markdown("*Р’С‹СЃРѕРєР°СЏ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊ С„РёС€РёРЅРіР°*")
     else:
-        st.header("Результат: Не мошеничество")
-        st.markdown("*Низкая вероятность фишинга*")
+        st.header("Р РµР·СѓР»СЊС‚Р°С‚: РќРµ РјРѕС€РµРЅРёС‡РµСЃС‚РІРѕ")
+        st.markdown("*РќРёР·РєР°СЏ РІРµСЂРѕСЏС‚РЅРѕСЃС‚СЊ С„РёС€РёРЅРіР°*")
         
         
-    # Анализ настроений
+    # РђРЅР°Р»РёР· РЅР°СЃС‚СЂРѕРµРЅРёР№
     sentiment = analyze_sentiment(input_sms)
 
-    # Вывод оценок настроения
-    st.subheader(f"Общий словарь настроений: {sentiment}")
-    st.subheader(f"Негатив: {sentiment['neg'] * 100:.2f}%")
-    st.subheader(f"Нейтральность : {sentiment['neu'] * 100:.2f}%")
-    st.subheader(f"Позитив: {sentiment['pos'] * 100:.2f}%")
+    # Р’С‹РІРѕРґ РѕС†РµРЅРѕРє РЅР°СЃС‚СЂРѕРµРЅРёСЏ
+    st.subheader(f"РћР±С‰РёР№ СЃР»РѕРІР°СЂСЊ РЅР°СЃС‚СЂРѕРµРЅРёР№: {sentiment}")
+    st.subheader(f"РќРµРіР°С‚РёРІ: {sentiment['neg'] * 100:.2f}%")
+    st.subheader(f"РќРµР№С‚СЂР°Р»СЊРЅРѕСЃС‚СЊ : {sentiment['neu'] * 100:.2f}%")
+    st.subheader(f"РџРѕР·РёС‚РёРІ: {sentiment['pos'] * 100:.2f}%")
     
-        # Создание круговой диаграммы
-    labels = ['Негативная часть', 'Нейтральная часть', 'Позитивная часть']
+        # РЎРѕР·РґР°РЅРёРµ РєСЂСѓРіРѕРІРѕР№ РґРёР°РіСЂР°РјРјС‹
+    labels = ['РќРµРіР°С‚РёРІРЅР°СЏ С‡Р°СЃС‚СЊ', 'РќРµР№С‚СЂР°Р»СЊРЅР°СЏ С‡Р°СЃС‚СЊ', 'РџРѕР·РёС‚РёРІРЅР°СЏ С‡Р°СЃС‚СЊ']
     sizes = [sentiment['neg'] * 100, sentiment['neu'] * 100, sentiment['pos'] * 100]
     colors = ['red', 'grey', 'green']
-    explode = (0.2, 0.2, 0.2)  # выделение долей
+    explode = (0.2, 0.2, 0.2)  # РІС‹РґРµР»РµРЅРёРµ РґРѕР»РµР№
 
-    plt.figure(figsize=(6, 4))  # Установка размера фигуры
-    plt.clf()  # Очистка текущей фигуры
+    plt.figure(figsize=(6, 4))  # РЈСЃС‚Р°РЅРѕРІРєР° СЂР°Р·РјРµСЂР° С„РёРіСѓСЂС‹
+    plt.clf()  # РћС‡РёСЃС‚РєР° С‚РµРєСѓС‰РµР№ С„РёРіСѓСЂС‹
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=False, startangle=90)
-    plt.axis('equal')  # Убедитесь, что круговая диаграмма будет кругом.
-    plt.title("Распределение настроений")  # Заголовок диаграммы
+    plt.axis('equal')  # РЈР±РµРґРёС‚РµСЃСЊ, С‡С‚Рѕ РєСЂСѓРіРѕРІР°СЏ РґРёР°РіСЂР°РјРјР° Р±СѓРґРµС‚ РєСЂСѓРіРѕРј.
+    plt.title("Р Р°СЃРїСЂРµРґРµР»РµРЅРёРµ РЅР°СЃС‚СЂРѕРµРЅРёР№")  # Р—Р°РіРѕР»РѕРІРѕРє РґРёР°РіСЂР°РјРјС‹
 
-    # Отображение диаграммы на Streamlit
+    # РћС‚РѕР±СЂР°Р¶РµРЅРёРµ РґРёР°РіСЂР°РјРјС‹ РЅР° Streamlit
     st.pyplot(plt)
     
 
-    # Определение общего настроения
+    # РћРїСЂРµРґРµР»РµРЅРёРµ РѕР±С‰РµРіРѕ РЅР°СЃС‚СЂРѕРµРЅРёСЏ
     if sentiment['compound'] >= 0.05:
-        overall_sentiment = "Позитивный"
+        overall_sentiment = "РџРѕР·РёС‚РёРІРЅС‹Р№"
     elif sentiment['compound'] <= -0.05:
-        overall_sentiment = "Негативный"
+        overall_sentiment = "РќРµРіР°С‚РёРІРЅС‹Р№"
     else:
-        overall_sentiment = "Нейтральный"
+        overall_sentiment = "РќРµР№С‚СЂР°Р»СЊРЅС‹Р№"
 
-    st.subheader(f"Текст в целом был оценен как: {overall_sentiment}")
+    st.subheader(f"РўРµРєСЃС‚ РІ С†РµР»РѕРј Р±С‹Р» РѕС†РµРЅРµРЅ РєР°Рє: {overall_sentiment}")
 
-    # Анализ полярности и субъективности
+    # РђРЅР°Р»РёР· РїРѕР»СЏСЂРЅРѕСЃС‚Рё Рё СЃСѓР±СЉРµРєС‚РёРІРЅРѕСЃС‚Рё
     blob = TextBlob(input_sms)
     polarity = blob.sentiment.polarity
     subjectivity = blob.sentiment.subjectivity * 100
     objective = 100 - subjectivity
 
-    # Вывод полярности и субъективности
+    # Р’С‹РІРѕРґ РїРѕР»СЏСЂРЅРѕСЃС‚Рё Рё СЃСѓР±СЉРµРєС‚РёРІРЅРѕСЃС‚Рё
     if polarity < 0:
-        sentiment_color = 'Негативный окрас'
+        sentiment_color = 'РќРµРіР°С‚РёРІРЅС‹Р№ РѕРєСЂР°СЃ'
     elif polarity == 0:
-        sentiment_color = 'Нейтральный окрас'
+        sentiment_color = 'РќРµР№С‚СЂР°Р»СЊРЅС‹Р№ РѕРєСЂР°СЃ'
     else:
-        sentiment_color = 'Позитивный окрас'
+        sentiment_color = 'РџРѕР·РёС‚РёРІРЅС‹Р№ РѕРєСЂР°СЃ'
 
-    st.subheader(f'Полярность: {sentiment_color} ({polarity})')
-    st.subheader(f'Степень субъективности: {subjectivity:.2f}%')
-    st.subheader(f'Степень объективности: {objective:.2f}%')
+    st.subheader(f'РџРѕР»СЏСЂРЅРѕСЃС‚СЊ: {sentiment_color} ({polarity})')
+    st.subheader(f'РЎС‚РµРїРµРЅСЊ СЃСѓР±СЉРµРєС‚РёРІРЅРѕСЃС‚Рё: {subjectivity:.2f}%')
+    st.subheader(f'РЎС‚РµРїРµРЅСЊ РѕР±СЉРµРєС‚РёРІРЅРѕСЃС‚Рё: {objective:.2f}%')
 
-    # Текст не токсичен и нет мошеничества
+    # РўРµРєСЃС‚ РЅРµ С‚РѕРєСЃРёС‡РµРЅ Рё РЅРµС‚ РјРѕС€РµРЅРёС‡РµСЃС‚РІР°
     if polarity > 0 and sentiment['compound'] >= 0.05 and result == 1:
         st.balloons()
 
