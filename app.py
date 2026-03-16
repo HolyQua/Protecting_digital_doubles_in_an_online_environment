@@ -11,29 +11,29 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 import matplotlib.pyplot as plt
 
-# Loading necessary resources
+
 nltk.download('punkt', quiet=True)
 nltk.download('punkt_tab', quiet=True)
 nltk.download('stopwords', quiet=True)
 
-# Initialization
+
 ps = PorterStemmer()
 tfidf = pickle.load(open('vectorizer.pkl', 'rb'))
 model = pickle.load(open('model.pkl', 'rb'))
 sentiment_analyzer = SentimentIntensityAnalyzer()
 
-# Function for text preprocessing
+
 def preprocess_text(text):
     text = text.lower()
     words = nltk.word_tokenize(text)
     words = [ps.stem(word) for word in words if word.isalnum() and word not in stopwords.words('english') and word not in string.punctuation]
     return " ".join(words)
 
-# Sentiment analysis function
+
 def analyze_sentiment(text):
     return sentiment_analyzer.polarity_scores(text)
 
-# Main Streamlit interface
+
 st.title("Защита цифровых двойников")
 
 input_sms = st.text_area("Введите текст, который подозревается на мошеничество или буллинг")
@@ -60,7 +60,7 @@ if st.button('Анализировать'):
         st.markdown("*Низкая вероятность фишинга*")
         
         
-    # Анализ настроений
+   
     sentiment = analyze_sentiment(input_sms)
 
     # Вывод оценок настроения
@@ -73,14 +73,14 @@ if st.button('Анализировать'):
     labels = ['Негативная часть', 'Нейтральная часть', 'Позитивная часть']
     sizes = [sentiment['neg'] * 100, sentiment['neu'] * 100, sentiment['pos'] * 100]
     colors = ['red', 'grey', 'green']
-    explode = (0.2, 0.2, 0.2)  # выделение долей
+    explode = (0.2, 0.2, 0.2)  
 
-    plt.figure(figsize=(6, 4))  # Установка размера фигуры
-    plt.clf()  # Очистка текущей фигуры
+    plt.figure(figsize=(6, 4))  
+    plt.clf()  
     plt.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct='%1.1f%%', shadow=False, startangle=90)
-    plt.axis('equal')  # Убедитесь, что круговая диаграмма будет кругом.
-    plt.title("Распределение настроений")  # Заголовок диаграммы
+    plt.axis('equal')  
+    plt.title("Распределение настроений")  
 
     # Отображение диаграммы на Streamlit
     st.pyplot(plt)
